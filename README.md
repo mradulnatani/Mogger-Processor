@@ -47,5 +47,3 @@ For more information, please contact:
 - Email: mradulnatani0@gmail.com
 - GitHub: mradulnatani
 
-
-Feel free to modify any sections to better fit your project!
