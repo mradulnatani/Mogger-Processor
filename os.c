@@ -8,19 +8,13 @@
 #define PROCESS_FILE "processes.txt"
 
 void load_processes();
+void print_help();
 
 void print_welcome_message() {
     printf("\n");
     printf("***************************************\n");
     printf("*                                     *\n");
     printf("*  W E L C O M E   T O   M O G G E R  *\n");
-    printf("*                                     *\n");
-    printf("*         ¦¦¦¦¦¦+ ¦¦+¦¦¦+   ¦¦+      *\n");
-    printf("*         ¦¦+--¦¦+¦¦¦¦¦¦¦+  ¦¦¦      *\n");
-    printf("*         ¦¦¦¦¦¦++¦¦¦¦¦+¦¦+ ¦¦¦      *\n");
-    printf("*         ¦¦+---+ ¦¦¦¦¦¦+¦¦¦¦¦       *\n");
-    printf("*         ¦¦¦       ¦¦¦¦¦¦ +¦¦¦¦      *\n");
-    printf("*         +-+       +-++-+  +--+      *\n");
     printf("*                                     *\n");
     printf("***************************************\n");
     printf("\n");
@@ -43,7 +37,6 @@ void init_os() {
     load_processes(); 
 }
 
-
 void create_process(const char* name, int priority) {
     if (process_count < MAX_PROCESSES) {
         printf("\033[1;32mCreating process...\033[0m\n");
@@ -61,8 +54,8 @@ void create_process(const char* name, int priority) {
 }
 
 void list_processes() {
+    int i;
     printf("\033[1;33mCurrent processes:\033[0m\n");
-    int i; 
     for (i = 0; i < process_count; i++) {
         printf("ID: %d, Name: %s, Status: %s, Priority: %d\n", 
                processes[i].id, 
@@ -95,11 +88,11 @@ void stop_process(int id) {
 }
 
 void terminate_process(int id) {
+    int i;
     if (id >= 0 && id < process_count) {
         printf("\033[1;32mTerminating process '%s' (ID: %d)...\033[0m\n", processes[id].name, id);
         usleep(500000); 
-       
-        int i; 
+        
         for (i = id; i < process_count - 1; i++) {
             processes[i] = processes[i + 1];
         }
@@ -110,9 +103,18 @@ void terminate_process(int id) {
     }
 }
 
+void update_process_priority(int id, int new_priority) {
+    if (id >= 0 && id < process_count) {
+        processes[id].priority = new_priority;
+        printf("Updated priority of process '%s' (ID: %d) to %d.\n", processes[id].name, id, new_priority);
+    } else {
+        printf("\033[1;31mError: Invalid process ID.\033[0m\n");
+    }
+}
+
 void find_process_by_name(const char* name) {
+    int i;
     int found = 0;
-    int i; 
     for (i = 0; i < process_count; i++) {
         if (strcmp(processes[i].name, name) == 0) {
             printf("Found process: ID: %d, Name: %s, Status: %s, Priority: %d\n",
@@ -128,18 +130,18 @@ void find_process_by_name(const char* name) {
     }
 }
 
-void save_processes() {
-    FILE *file = fopen(PROCESS_FILE, "w");
+void save_processes(int append) {
+    int i;
+    FILE *file = fopen(PROCESS_FILE, append ? "a" : "w");
     if (!file) {
         printf("\033[1;31mError: Unable to open file for writing.\033[0m\n");
         return;
     }
-    int i; 
     for (i = 0; i < process_count; i++) {
         fprintf(file, "%d %s %d %d\n", processes[i].id, processes[i].name, processes[i].status, processes[i].priority);
     }
     fclose(file);
-    printf("Processes saved to '%s'.\n", PROCESS_FILE);
+    printf("Processes %s to '%s'.\n", append ? "appended" : "saved", PROCESS_FILE);
 }
 
 void load_processes() {
@@ -160,6 +162,21 @@ void load_processes() {
     printf("Processes loaded from '%s'.\n", PROCESS_FILE);
 }
 
+void print_help() {
+    printf("\033[1;34mAvailable commands:\033[0m\n");
+    printf("  create <name> [priority]  - Create a new process with the given name and optional priority (default is 1).\n");
+    printf("  list                       - List all processes.\n");
+    printf("  start <id>                - Start the process with the given ID.\n");
+    printf("  stop <id>                 - Stop the process with the given ID.\n");
+    printf("  terminate <id>            - Terminate the process with the given ID.\n");
+    printf("  update <id> <priority>    - Update the priority of the process with the given ID.\n");
+    printf("  find <name>               - Find and display details of a process by name.\n");
+    printf("  save                       - Save all processes to file (overwrites).\n");
+    printf("  append                     - Append all processes to the file.\n");
+    printf("  load                       - Load processes from file.\n");
+    printf("  exit                       - Exit the program.\n");
+}
+
 void command_interpreter() {
     char command[MAX_COMMAND_LENGTH];
     
@@ -173,7 +190,7 @@ void command_interpreter() {
         if (token == NULL) continue;
         
         if (strcasecmp(token, "exit") == 0) {
-            save_processes(); 
+            save_processes(0); 
             printf("Exiting...\n");
             break;
         } else if (strcasecmp(token, "create") == 0) {
@@ -201,11 +218,26 @@ void command_interpreter() {
         } else if (strcasecmp(token, "terminate") == 0) {
             token = strtok(NULL, " ");
             if (token) terminate_process(atoi(token));
+        } else if (strcasecmp(token, "update") == 0) {
+            int id, priority;
+            token = strtok(NULL, " ");
+            if (token) id = atoi(token);
+            token = strtok(NULL, " ");
+            if (token) priority = atoi(token);
+            update_process_priority(id, priority);
         } else if (strcasecmp(token, "find") == 0) {
             token = strtok(NULL, " ");
             if (token) find_process_by_name(token);
+        } else if (strcasecmp(token, "save") == 0) {
+            save_processes(0);
+        } else if (strcasecmp(token, "append") == 0) {
+            save_processes(1);
+        } else if (strcasecmp(token, "load") == 0) {
+            load_processes();
+        } else if (strcasecmp(token, "help") == 0) {
+            print_help();
         } else {
-            printf("\033[1;31mUnknown command. Available commands: create, list, start, stop, terminate, find, exit\033[0m\n");
+            printf("\033[1;31mUnknown command. Type 'help' for a list of commands.\033[0m\n");
         }
     }
 }
@@ -216,4 +248,3 @@ int main() {
     printf("Mogger shutting down.\n");
     return 0;
 }
-
