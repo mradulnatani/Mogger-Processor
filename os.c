@@ -10,16 +10,29 @@
 void load_processes();
 void print_help();
 
+
 void print_welcome_message() {
     printf("\n");
-    printf("***************************************\n");
-    printf("*                                     *\n");
-    printf("*  W E L C O M E   T O   M O G G E R  *\n");
-    printf("*                                     *\n");
-    printf("***************************************\n");
+    printf("*****************************************\n");
+    printf("*                                       *\n");
+    printf("*             W E L C O M E            *\n");
+    printf("*                                       *\n");
+    printf("*****************************************\n");
+    printf("*                                       *\n");
+    printf(" *  ¦¦¦¦   ¦¦¦¦¦¦   ¦¦¦¦¦¦   ¦¦¦¦¦¦   *\n");
+    printf(" * ¦¦  ¦¦ ¦¦    ¦¦ ¦¦    ¦¦ ¦¦    ¦¦  *\n");
+    printf(" * ¦¦      ¦¦    ¦¦ ¦¦    ¦¦ ¦¦    ¦¦  *\n");
+    printf(" * ¦¦  ¦¦ ¦¦    ¦¦ ¦¦    ¦¦ ¦¦    ¦¦  *\n");
+    printf(" *  ¦¦¦¦   ¦¦¦¦¦¦   ¦¦¦¦¦¦   ¦¦¦¦¦¦   *\n");
+    printf("*                                       *\n");
+    printf("*              M O G G E R              *\n");
+    printf("*                                       *\n");
+    printf("*      Get Ready for an Exciting       *\n");
+    printf("*               Adventure!              *\n");
+    printf("*                                       *\n");
+    printf("*****************************************\n");
     printf("\n");
 }
-
 typedef struct {
     int id;
     char name[50];
