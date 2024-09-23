@@ -47,8 +47,8 @@ This project is licensed under the MIT License. See the LICENSE file for more de
 
 ## Contact
 For more information, please contact:
-- Email: your-email@example.com
-- GitHub: your-github-profile
+- Email: mradulnatani0@gmail.com
+- GitHub: mradulnatani
 
 ```
 
