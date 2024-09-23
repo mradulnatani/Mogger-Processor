@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <windows.h>
 
 #define MAX_PROCESSES 10
 #define MAX_COMMAND_LENGTH 100
@@ -33,6 +34,7 @@ int process_count = 0;
 
 void load_processes();
 void print_help();
+void print_system_info();
 
 void print_welcome_message() {
     printf("\n");
@@ -192,6 +194,18 @@ void load_processes() {
     printf(COLOR_GREEN "Processes loaded from '%s'.\n" COLOR_RESET, PROCESS_FILE);
 }
 
+void print_system_info() {
+    MEMORYSTATUSEX memInfo;
+    memInfo.dwLength = sizeof(MEMORYSTATUSEX);
+    GlobalMemoryStatusEx(&memInfo);
+
+    printf(COLOR_YELLOW "System Information:\n" COLOR_RESET);
+    printf(COLOR_CYAN "Total RAM: %llu MB\n" COLOR_RESET, memInfo.ullTotalPhys / (1024 * 1024));
+    printf(COLOR_CYAN "Free RAM: %llu MB\n" COLOR_RESET, memInfo.ullAvailPhys / (1024 * 1024));
+    printf(COLOR_CYAN "Total Virtual Memory: %llu MB\n" COLOR_RESET, memInfo.ullTotalVirtual / (1024 * 1024));
+    printf(COLOR_CYAN "Free Virtual Memory: %llu MB\n" COLOR_RESET, memInfo.ullAvailVirtual / (1024 * 1024));
+}
+
 void print_help() {
     printf(COLOR_CYAN STYLE_BOLD STYLE_UNDERLINE "Available commands:\n" COLOR_RESET);
     printf(COLOR_GREEN "  create" COLOR_RESET " <name> [priority]  - Create a new process\n");
@@ -204,21 +218,22 @@ void print_help() {
     printf(COLOR_GREEN "  save" COLOR_RESET "                     - Save processes to file\n");
     printf(COLOR_GREEN "  append" COLOR_RESET "                   - Append processes to file\n");
     printf(COLOR_GREEN "  load" COLOR_RESET "                     - Load processes from file\n");
+    printf(COLOR_GREEN "  sysinfo" COLOR_RESET "                 - Display system information\n");
     printf(COLOR_RED "  exit" COLOR_RESET "                     - Exit the program\n");
 }
 
 void command_interpreter() {
     char command[MAX_COMMAND_LENGTH];
-    
+
     while (1) {
         printf(COLOR_CYAN STYLE_BOLD "SimpleOS> " COLOR_RESET);
         fgets(command, MAX_COMMAND_LENGTH, stdin);
         command[strcspn(command, "\n")] = 0;
-        
+
         char *token = strtok(command, " ");
-        
+
         if (token == NULL) continue;
-        
+
         if (strcasecmp(token, "exit") == 0) {
             save_processes(0);
             printf(COLOR_YELLOW "Exiting...\n" COLOR_RESET);
@@ -264,6 +279,8 @@ void command_interpreter() {
             save_processes(1);
         } else if (strcasecmp(token, "load") == 0) {
             load_processes();
+        } else if (strcasecmp(token, "sysinfo") == 0) {
+            print_system_info();
         } else if (strcasecmp(token, "help") == 0) {
             print_help();
         } else {
