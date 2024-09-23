@@ -13,13 +13,13 @@ void print_welcome_message() {
     printf("\n");
     printf("***************************************\n");
     printf("*                                     *\n");
-    printf("*  W E L C O M E   T O   S I M P L E  *\n");
+    printf("*  W E L C O M E   T O   M O G G E R  *\n");
     printf("*                                     *\n");
-    printf("*         ¦¦¦¦¦¦+ ¦¦+¦¦¦+   ¦¦+      *\n");
-    printf("*         ¦¦+--¦¦+¦¦¦¦¦¦¦+  ¦¦¦      *\n");
-    printf("*         ¦¦¦¦¦¦++¦¦¦¦¦+¦¦+ ¦¦¦      *\n");
-    printf("*         ¦¦+---+ ¦¦¦¦¦¦+¦¦¦¦¦       *\n");
-    printf("*         ¦¦¦       ¦¦¦¦¦¦ +¦¦¦¦      *\n");
+    printf("*         Â¦Â¦Â¦Â¦Â¦Â¦+ Â¦Â¦+Â¦Â¦Â¦+   Â¦Â¦+      *\n");
+    printf("*         Â¦Â¦+--Â¦Â¦+Â¦Â¦Â¦Â¦Â¦Â¦Â¦+  Â¦Â¦Â¦      *\n");
+    printf("*         Â¦Â¦Â¦Â¦Â¦Â¦++Â¦Â¦Â¦Â¦Â¦+Â¦Â¦+ Â¦Â¦Â¦      *\n");
+    printf("*         Â¦Â¦+---+ Â¦Â¦Â¦Â¦Â¦Â¦+Â¦Â¦Â¦Â¦Â¦       *\n");
+    printf("*         Â¦Â¦Â¦       Â¦Â¦Â¦Â¦Â¦Â¦ +Â¦Â¦Â¦Â¦      *\n");
     printf("*         +-+       +-++-+  +--+      *\n");
     printf("*                                     *\n");
     printf("***************************************\n");
@@ -213,7 +213,7 @@ void command_interpreter() {
 int main() {
     init_os();
     command_interpreter();
-    printf("SimpleOS shutting down.\n");
+    printf("Mogger shutting down.\n");
     return 0;
 }
 
