@@ -1,6 +1,3 @@
-Sure! Here’s a README template for your operating system that you can copy and paste into a text file:
-
-```
 # Enhanced SimpleOS v2.0
 
 ## Overview
@@ -50,6 +47,5 @@ For more information, please contact:
 - Email: mradulnatani0@gmail.com
 - GitHub: mradulnatani
 
-```
 
 Feel free to modify any sections to better fit your project!
