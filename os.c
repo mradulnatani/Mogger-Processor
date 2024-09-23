@@ -1,78 +1,95 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <unistd.h> 
+#include <unistd.h>
 
 #define MAX_PROCESSES 10
 #define MAX_COMMAND_LENGTH 100
 #define PROCESS_FILE "processes.txt"
 
-void load_processes();
-void print_help();
+// ANSI color codes
+#define COLOR_RESET   "\x1B[0m"
+#define COLOR_RED     "\x1B[31m"
+#define COLOR_GREEN   "\x1B[32m"
+#define COLOR_YELLOW  "\x1B[33m"
+#define COLOR_BLUE    "\x1B[34m"
+#define COLOR_MAGENTA "\x1B[35m"
+#define COLOR_CYAN    "\x1B[36m"
+#define COLOR_WHITE   "\x1B[37m"
 
+// ANSI style codes
+#define STYLE_BOLD      "\x1B[1m"
+#define STYLE_UNDERLINE "\x1B[4m"
 
-void print_welcome_message() {
-    printf("\n");
-    printf("*****************************************\n");
-    printf("*                                       *\n");
-    printf("*             W E L C O M E            *\n");
-    printf("*                                       *\n");
-    printf("*****************************************\n");
-    printf("*                                       *\n");
-    printf(" *  ¦¦¦¦   ¦¦¦¦¦¦   ¦¦¦¦¦¦   ¦¦¦¦¦¦   *\n");
-    printf(" * ¦¦  ¦¦ ¦¦    ¦¦ ¦¦    ¦¦ ¦¦    ¦¦  *\n");
-    printf(" * ¦¦      ¦¦    ¦¦ ¦¦    ¦¦ ¦¦    ¦¦  *\n");
-    printf(" * ¦¦  ¦¦ ¦¦    ¦¦ ¦¦    ¦¦ ¦¦    ¦¦  *\n");
-    printf(" *  ¦¦¦¦   ¦¦¦¦¦¦   ¦¦¦¦¦¦   ¦¦¦¦¦¦   *\n");
-    printf("*                                       *\n");
-    printf("*              M O G G E R              *\n");
-    printf("*                                       *\n");
-    printf("*      Get Ready for an Exciting       *\n");
-    printf("*               Adventure!              *\n");
-    printf("*                                       *\n");
-    printf("*****************************************\n");
-    printf("\n");
-}
 typedef struct {
     int id;
     char name[50];
-    int status; 
-    int priority; 
+    int status;
+    int priority;
 } Process;
 
 Process processes[MAX_PROCESSES];
 int process_count = 0;
 
+void load_processes();
+void print_help();
+
+void print_welcome_message() {
+    printf("\n");
+    printf(COLOR_CYAN STYLE_BOLD);
+    printf("+---------------------------------------+\n");
+    printf("¦                                       ¦\n");
+    printf("¦          W E L C O M E  T O           ¦\n");
+    printf("¦                                       ¦\n");
+    printf("¦               M O G G E R             ¦\n");
+    printf("¦                                       ¦\n");
+    printf("+---------------------------------------+\n");
+    printf(COLOR_RESET "\n");
+
+    printf(COLOR_MAGENTA);
+    printf("   _____ _____ _____ _____    _____ _____ \n");
+    printf("  |     |     |   __|   __|  |     |   __|\n");
+    printf("  | | | |  |  |  |  |  |  |  |  |  |__   |\n");
+    printf("  |_|_|_|_____|_____|_____|  |_____|_____|\n");
+    printf(COLOR_RESET "\n");
+
+    printf(COLOR_YELLOW STYLE_BOLD);
+    printf("       Get Ready for an Exciting\n");
+    printf("              Adventure!\n");
+    printf(COLOR_RESET "\n");
+}
+
 void init_os() {
-    printf("\033[1;34mSimple OS initializing...\033[0m\n");
-    usleep(500000); 
-    print_welcome_message(); 
-    load_processes(); 
+    printf(COLOR_BLUE STYLE_BOLD "+---- Simple OS initializing... ----+" COLOR_RESET "\n");
+    usleep(500000);
+    print_welcome_message();
+    load_processes();
+    printf(COLOR_GREEN "? Initialization complete" COLOR_RESET "\n\n");
 }
 
 void create_process(const char* name, int priority) {
     if (process_count < MAX_PROCESSES) {
-        printf("\033[1;32mCreating process...\033[0m\n");
-        usleep(500000); 
+        printf(COLOR_GREEN "Creating process..." COLOR_RESET "\n");
+        usleep(500000);
         Process new_process;
         new_process.id = process_count;
         strcpy(new_process.name, name);
-        new_process.status = 0; 
+        new_process.status = 0;
         new_process.priority = priority;
         processes[process_count++] = new_process;
-        printf("Process '%s' created with ID %d and priority %d\n", name, process_count - 1, priority);
+        printf(COLOR_GREEN "Process '%s' created with ID %d and priority %d\n" COLOR_RESET, name, process_count - 1, priority);
     } else {
-        printf("\033[1;31mError: Maximum number of processes reached.\033[0m\n");
+        printf(COLOR_RED "Error: Maximum number of processes reached.\n" COLOR_RESET);
     }
 }
 
 void list_processes() {
     int i;
-    printf("\033[1;33mCurrent processes:\033[0m\n");
+    printf(COLOR_YELLOW "Current processes:\n" COLOR_RESET);
     for (i = 0; i < process_count; i++) {
-        printf("ID: %d, Name: %s, Status: %s, Priority: %d\n", 
-               processes[i].id, 
-               processes[i].name, 
+        printf(COLOR_CYAN "ID: %d, Name: %s, Status: %s, Priority: %d\n" COLOR_RESET,
+               processes[i].id,
+               processes[i].name,
                processes[i].status ? "Running" : "Stopped",
                processes[i].priority);
     }
@@ -81,47 +98,47 @@ void list_processes() {
 void start_process(int id) {
     if (id >= 0 && id < process_count) {
         processes[id].status = 1;
-        printf("\033[1;32mStarting process '%s' (ID: %d)...\033[0m\n", processes[id].name, id);
-        usleep(500000); 
-        printf("Process '%s' (ID: %d) started.\n", processes[id].name, id);
+        printf(COLOR_GREEN "Starting process '%s' (ID: %d)...\n" COLOR_RESET, processes[id].name, id);
+        usleep(500000);
+        printf(COLOR_GREEN "Process '%s' (ID: %d) started.\n" COLOR_RESET, processes[id].name, id);
     } else {
-        printf("\033[1;31mError: Invalid process ID.\033[0m\n");
+        printf(COLOR_RED "Error: Invalid process ID.\n" COLOR_RESET);
     }
 }
 
 void stop_process(int id) {
     if (id >= 0 && id < process_count) {
         processes[id].status = 0;
-        printf("\033[1;32mStopping process '%s' (ID: %d)...\033[0m\n", processes[id].name, id);
-        usleep(500000); 
-        printf("Process '%s' (ID: %d) stopped.\n", processes[id].name, id);
+        printf(COLOR_YELLOW "Stopping process '%s' (ID: %d)...\n" COLOR_RESET, processes[id].name, id);
+        usleep(500000);
+        printf(COLOR_YELLOW "Process '%s' (ID: %d) stopped.\n" COLOR_RESET, processes[id].name, id);
     } else {
-        printf("\033[1;31mError: Invalid process ID.\033[0m\n");
+        printf(COLOR_RED "Error: Invalid process ID.\n" COLOR_RESET);
     }
 }
 
 void terminate_process(int id) {
     int i;
     if (id >= 0 && id < process_count) {
-        printf("\033[1;32mTerminating process '%s' (ID: %d)...\033[0m\n", processes[id].name, id);
-        usleep(500000); 
+        printf(COLOR_RED "Terminating process '%s' (ID: %d)...\n" COLOR_RESET, processes[id].name, id);
+        usleep(500000);
         
         for (i = id; i < process_count - 1; i++) {
             processes[i] = processes[i + 1];
         }
         process_count--;
-        printf("Process '%s' (ID: %d) terminated.\n", processes[id].name, id);
+        printf(COLOR_RED "Process '%s' (ID: %d) terminated.\n" COLOR_RESET, processes[id].name, id);
     } else {
-        printf("\033[1;31mError: Invalid process ID.\033[0m\n");
+        printf(COLOR_RED "Error: Invalid process ID.\n" COLOR_RESET);
     }
 }
 
 void update_process_priority(int id, int new_priority) {
     if (id >= 0 && id < process_count) {
         processes[id].priority = new_priority;
-        printf("Updated priority of process '%s' (ID: %d) to %d.\n", processes[id].name, id, new_priority);
+        printf(COLOR_CYAN "Updated priority of process '%s' (ID: %d) to %d.\n" COLOR_RESET, processes[id].name, id, new_priority);
     } else {
-        printf("\033[1;31mError: Invalid process ID.\033[0m\n");
+        printf(COLOR_RED "Error: Invalid process ID.\n" COLOR_RESET);
     }
 }
 
@@ -130,7 +147,7 @@ void find_process_by_name(const char* name) {
     int found = 0;
     for (i = 0; i < process_count; i++) {
         if (strcmp(processes[i].name, name) == 0) {
-            printf("Found process: ID: %d, Name: %s, Status: %s, Priority: %d\n",
+            printf(COLOR_GREEN "Found process: ID: %d, Name: %s, Status: %s, Priority: %d\n" COLOR_RESET,
                    processes[i].id, processes[i].name,
                    processes[i].status ? "Running" : "Stopped",
                    processes[i].priority);
@@ -139,7 +156,7 @@ void find_process_by_name(const char* name) {
         }
     }
     if (!found) {
-        printf("\033[1;31mNo process found with name '%s'.\033[0m\n", name);
+        printf(COLOR_RED "No process found with name '%s'.\n" COLOR_RESET, name);
     }
 }
 
@@ -147,74 +164,74 @@ void save_processes(int append) {
     int i;
     FILE *file = fopen(PROCESS_FILE, append ? "a" : "w");
     if (!file) {
-        printf("\033[1;31mError: Unable to open file for writing.\033[0m\n");
+        printf(COLOR_RED "Error: Unable to open file for writing.\n" COLOR_RESET);
         return;
     }
     for (i = 0; i < process_count; i++) {
         fprintf(file, "%d %s %d %d\n", processes[i].id, processes[i].name, processes[i].status, processes[i].priority);
     }
     fclose(file);
-    printf("Processes %s to '%s'.\n", append ? "appended" : "saved", PROCESS_FILE);
+    printf(COLOR_GREEN "Processes %s to '%s'.\n" COLOR_RESET, append ? "appended" : "saved", PROCESS_FILE);
 }
 
 void load_processes() {
-    printf("\033[1;33mLoading processes...\033[0m\n");
-    usleep(500000); 
+    printf(COLOR_YELLOW "Loading processes...\n" COLOR_RESET);
+    usleep(500000);
     FILE *file = fopen(PROCESS_FILE, "r");
     if (!file) {
-        printf("No process file found. Starting with an empty process list.\n");
+        printf(COLOR_YELLOW "No process file found. Starting with an empty process list.\n" COLOR_RESET);
         return;
     }
     while (fscanf(file, "%d %49s %d %d", &processes[process_count].id, processes[process_count].name, &processes[process_count].status, &processes[process_count].priority) == 4) {
         process_count++;
         if (process_count >= MAX_PROCESSES) {
-            break; 
+            break;
         }
     }
     fclose(file);
-    printf("Processes loaded from '%s'.\n", PROCESS_FILE);
+    printf(COLOR_GREEN "Processes loaded from '%s'.\n" COLOR_RESET, PROCESS_FILE);
 }
 
 void print_help() {
-    printf("\033[1;34mAvailable commands:\033[0m\n");
-    printf("  create <name> [priority]  - Create a new process with the given name and optional priority (default is 1).\n");
-    printf("  list                       - List all processes.\n");
-    printf("  start <id>                - Start the process with the given ID.\n");
-    printf("  stop <id>                 - Stop the process with the given ID.\n");
-    printf("  terminate <id>            - Terminate the process with the given ID.\n");
-    printf("  update <id> <priority>    - Update the priority of the process with the given ID.\n");
-    printf("  find <name>               - Find and display details of a process by name.\n");
-    printf("  save                       - Save all processes to file (overwrites).\n");
-    printf("  append                     - Append all processes to the file.\n");
-    printf("  load                       - Load processes from file.\n");
-    printf("  exit                       - Exit the program.\n");
+    printf(COLOR_CYAN STYLE_BOLD STYLE_UNDERLINE "Available commands:\n" COLOR_RESET);
+    printf(COLOR_GREEN "  create" COLOR_RESET " <name> [priority]  - Create a new process\n");
+    printf(COLOR_GREEN "  list" COLOR_RESET "                     - List all processes\n");
+    printf(COLOR_GREEN "  start" COLOR_RESET " <id>               - Start a process\n");
+    printf(COLOR_GREEN "  stop" COLOR_RESET " <id>                - Stop a process\n");
+    printf(COLOR_GREEN "  terminate" COLOR_RESET " <id>           - Terminate a process\n");
+    printf(COLOR_GREEN "  update" COLOR_RESET " <id> <priority>   - Update process priority\n");
+    printf(COLOR_GREEN "  find" COLOR_RESET " <name>              - Find a process by name\n");
+    printf(COLOR_GREEN "  save" COLOR_RESET "                     - Save processes to file\n");
+    printf(COLOR_GREEN "  append" COLOR_RESET "                   - Append processes to file\n");
+    printf(COLOR_GREEN "  load" COLOR_RESET "                     - Load processes from file\n");
+    printf(COLOR_RED "  exit" COLOR_RESET "                     - Exit the program\n");
 }
 
 void command_interpreter() {
     char command[MAX_COMMAND_LENGTH];
     
     while (1) {
-        printf("SimpleOS> ");
+        printf(COLOR_CYAN STYLE_BOLD "SimpleOS> " COLOR_RESET);
         fgets(command, MAX_COMMAND_LENGTH, stdin);
-        command[strcspn(command, "\n")] = 0; 
+        command[strcspn(command, "\n")] = 0;
         
         char *token = strtok(command, " ");
         
         if (token == NULL) continue;
         
         if (strcasecmp(token, "exit") == 0) {
-            save_processes(0); 
-            printf("Exiting...\n");
+            save_processes(0);
+            printf(COLOR_YELLOW "Exiting...\n" COLOR_RESET);
             break;
         } else if (strcasecmp(token, "create") == 0) {
             token = strtok(NULL, " ");
             if (token) {
-                int priority = 1; 
+                int priority = 1;
                 char *priority_str = strtok(NULL, " ");
                 if (priority_str) {
                     priority = atoi(priority_str);
                     if (priority < 1 || priority > 10) {
-                        printf("\033[1;31mError: Priority must be between 1 and 10. Using default priority 1.\033[0m\n");
+                        printf(COLOR_RED "Error: Priority must be between 1 and 10. Using default priority 1.\n" COLOR_RESET);
                         priority = 1;
                     }
                 }
@@ -250,7 +267,7 @@ void command_interpreter() {
         } else if (strcasecmp(token, "help") == 0) {
             print_help();
         } else {
-            printf("\033[1;31mUnknown command. Type 'help' for a list of commands.\033[0m\n");
+            printf(COLOR_RED "Unknown command. Type 'help' for a list of commands.\n" COLOR_RESET);
         }
     }
 }
@@ -258,6 +275,6 @@ void command_interpreter() {
 int main() {
     init_os();
     command_interpreter();
-    printf("Mogger shutting down.\n");
+    printf(COLOR_YELLOW STYLE_BOLD "\nMogger shutting down. Goodbye!\n" COLOR_RESET);
     return 0;
 }
