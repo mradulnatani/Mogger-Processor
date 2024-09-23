@@ -1,24 +1,24 @@
-# Enhanced SimpleOS v2.0
+# Mogger Processor v2.0
 
 ## Overview
-Enhanced SimpleOS v2.0 is a lightweight, user-friendly operating system designed for efficient process management and file handling. It offers a simple command-line interface, making it suitable for both novice users and experienced developers.
+Mogger Processor v2.0 is a lightweight, user-friendly operating system tailored for efficient process management and file handling. With its intuitive command-line interface, it is designed to cater to both novice users and experienced developers.
 
 ## Features
-- **Process Management**: Create, list, start, and stop processes with ease.
-- **File Handling**: Create and list files, managing file sizes effectively.
-- **System Information**: Display current system statistics including memory usage and process counts.
-- **Colored Output**: Enjoy a visually appealing terminal experience with colored text.
-- **Customizable Commands**: Extend functionality with easy-to-use commands.
+- **Process Management**: Effortlessly create, list, start, and stop processes.
+- **File Handling**: Create and list files while effectively managing their sizes.
+- **System Information**: Display current system statistics, including memory usage and active process counts.
+- **Colored Output**: Enjoy a visually engaging terminal experience with colored text.
+- **Customizable Commands**: Extend functionality with user-friendly commands.
 
 ## Installation
 1. Download the source code.
 2. Compile the code using a C compiler (e.g., `gcc`):
    ```bash
-   gcc -o SimpleOS os.c -std=c99
+   gcc -o MoggerProcessor os.c -std=c99
    ```
 3. Run the executable:
    ```bash
-   ./SimpleOS
+   ./MoggerProcessor
    ```
 
 ## Commands
@@ -33,17 +33,16 @@ Here’s a list of available commands:
 - `exit`: Exit the OS.
 
 ## Contribution
-Contributions are welcome! If you would like to suggest features, report bugs, or improve documentation, please feel free to submit a pull request or open an issue on the project repository.
+Contributions are welcome! If you would like to suggest features, report bugs, or enhance documentation, please submit a pull request or open an issue on the project repository.
 
 ## License
 This project is licensed under the MIT License. See the LICENSE file for more details.
 
 ## Acknowledgments
 - Inspired by traditional operating systems and user feedback.
-- Special thanks to the open-source community for their continuous support and resources.
+- Special thanks to the open-source community for their ongoing support and resources.
 
 ## Contact
 For more information, please contact:
 - Email: mradulnatani0@gmail.com
 - GitHub: mradulnatani
-
