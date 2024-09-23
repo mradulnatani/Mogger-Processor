@@ -1,6 +1,4 @@
-Sure! Here’s the documentation in a plain text format you can easily copy and paste into a `.txt` file:
 
-```
 # Enhanced SimpleOS Documentation
 
 ## Overview
@@ -168,6 +166,3 @@ Ensure that your terminal supports ANSI escape codes for color output.
 ---
 
 This documentation provides a detailed overview of Enhanced SimpleOS, its functionalities, and how to use it. If you have any questions or need further assistance, feel free to ask!
-``` 
-
-Just copy this entire block and paste it into your `.txt` file.
