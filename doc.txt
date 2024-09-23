@@ -1,9 +1,8 @@
-
-# Enhanced SimpleOS Documentation
+# Mogger Processor Documentation
 
 ## Overview
 
-Enhanced SimpleOS is a lightweight simulation of an operating system that allows users to manage processes and files. It provides a command-line interface where users can create, list, start, and stop processes as well as manage files.
+Mogger Processor is a lightweight simulation of an operating system that allows users to manage processes and files. It provides a command-line interface where users can create, list, start, and stop processes, as well as manage files.
 
 ## Table of Contents
 
@@ -79,7 +78,7 @@ Prints the given text in the specified color.
 
 ### void print_welcome_message()
 
-Displays the welcome message for Enhanced SimpleOS.
+Displays the welcome message for Mogger Processor.
 
 ### void init_os()
 
@@ -125,24 +124,24 @@ The entry point of the program that initializes the OS and starts the command in
 
 ## Command List
 
-| Command                | Description                                                 |
-|------------------------|-------------------------------------------------------------|
+| Command                          | Description                                                  |
+|----------------------------------|--------------------------------------------------------------|
 | `create [name] [priority] [memory]` | Create a new process with specified name, priority, and memory usage. |
-| `list`                 | List all active processes.                                 |
-| `start [id]`          | Start a process by its ID.                                 |
-| `stop [id]`           | Stop a process by its ID.                                  |
-| `createfile [name] [size]` | Create a new file with specified name and size.            |
-| `listfiles`           | List all created files.                                    |
-| `sysinfo`             | Display current system information.                         |
-| `help`                | Show available commands.                                   |
-| `exit`                | Exit the Enhanced SimpleOS.                                |
+| `list`                           | List all active processes.                                  |
+| `start [id]`                    | Start a process by its ID.                                  |
+| `stop [id]`                     | Stop a process by its ID.                                   |
+| `createfile [name] [size]`     | Create a new file with specified name and size.            |
+| `listfiles`                     | List all created files.                                     |
+| `sysinfo`                       | Display current system information.                          |
+| `help`                          | Show available commands.                                    |
+| `exit`                          | Exit the Mogger Processor.                                  |
 
 ---
 
 ## Usage
 
 1. Compile the program using a C compiler.
-2. Run the executable to start the Enhanced SimpleOS.
+2. Run the executable to start the Mogger Processor.
 3. Use the command line to enter commands and manage processes and files.
 
 ---
@@ -152,17 +151,15 @@ The entry point of the program that initializes the OS and starts the command in
 To compile the program, use the following command in your terminal:
 
 ```bash
-gcc -o SimpleOS SimpleOS.c -std=c99
+gcc -o MoggerProcessor MoggerProcessor.c -std=c99
 ```
 
 To execute the program, run:
 
 ```bash
-./SimpleOS
+./MoggerProcessor
 ```
 
 Ensure that your terminal supports ANSI escape codes for color output.
 
 ---
-
-This documentation provides a detailed overview of Enhanced SimpleOS, its functionalities, and how to use it. If you have any questions or need further assistance, feel free to ask!
