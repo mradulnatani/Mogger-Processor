@@ -7,6 +7,7 @@
 #define MAX_PROCESSES 10
 #define MAX_COMMAND_LENGTH 100
 #define PROCESS_FILE "processes.txt"
+#define PACKAGE_FILE "packages.txt"
 
 // ANSI color codes
 #define COLOR_RESET   "\x1B[0m"
@@ -29,12 +30,36 @@ typedef struct {
     int priority;
 } Process;
 
+typedef struct {
+    char name[50];
+    char version[10];
+    int installed;
+} Package;
+
 Process processes[MAX_PROCESSES];
+Package packages[MAX_PROCESSES]; // Reusing the array size for packages
 int process_count = 0;
+int package_count = 0;
 
 void load_processes();
+void save_processes(int append);
+void create_process(const char* name, int priority);
+void list_processes();
+void start_process(int id);
+void stop_process(int id);
+void terminate_process(int id);
+void update_process_priority(int id, int new_priority);
+void find_process_by_name(const char* name);
+void load_packages();
+void save_packages(int append);
+void install_package(const char* name, const char* version);
+void uninstall_package(const char* name);
+void list_packages();
 void print_help();
 void print_system_info();
+void print_welcome_message();
+void init_os();
+void command_interpreter();
 
 void print_welcome_message() {
     printf("\n");
@@ -66,6 +91,7 @@ void init_os() {
     usleep(500000);
     print_welcome_message();
     load_processes();
+    load_packages(); // Load packages during initialization
     printf(COLOR_GREEN "? Initialization complete" COLOR_RESET "\n\n");
 }
 
@@ -162,64 +188,69 @@ void find_process_by_name(const char* name) {
     }
 }
 
-void save_processes(int append) {
-    int i;
-    FILE *file = fopen(PROCESS_FILE, append ? "a" : "w");
+void load_packages() {
+    FILE *file = fopen(PACKAGE_FILE, "r");
     if (!file) {
-        printf(COLOR_RED "Error: Unable to open file for writing.\n" COLOR_RESET);
+        printf(COLOR_YELLOW "No package file found. Starting with an empty package list.\n" COLOR_RESET);
         return;
     }
-    for (i = 0; i < process_count; i++) {
-        fprintf(file, "%d %s %d %d\n", processes[i].id, processes[i].name, processes[i].status, processes[i].priority);
-    }
-    fclose(file);
-    printf(COLOR_GREEN "Processes %s to '%s'.\n" COLOR_RESET, append ? "appended" : "saved", PROCESS_FILE);
-}
-
-void load_processes() {
-    printf(COLOR_YELLOW "Loading processes...\n" COLOR_RESET);
-    usleep(500000);
-    FILE *file = fopen(PROCESS_FILE, "r");
-    if (!file) {
-        printf(COLOR_YELLOW "No process file found. Starting with an empty process list.\n" COLOR_RESET);
-        return;
-    }
-    while (fscanf(file, "%d %49s %d %d", &processes[process_count].id, processes[process_count].name, &processes[process_count].status, &processes[process_count].priority) == 4) {
-        process_count++;
-        if (process_count >= MAX_PROCESSES) {
+    while (fscanf(file, "%49s %9s %d", packages[package_count].name, packages[package_count].version, &packages[package_count].installed) == 3) {
+        package_count++;
+        if (package_count >= MAX_PROCESSES) {
             break;
         }
     }
     fclose(file);
-    printf(COLOR_GREEN "Processes loaded from '%s'.\n" COLOR_RESET, PROCESS_FILE);
+    printf(COLOR_GREEN "Packages loaded from '%s'.\n" COLOR_RESET, PACKAGE_FILE);
 }
 
-void print_system_info() {
-    MEMORYSTATUSEX memInfo;
-    memInfo.dwLength = sizeof(MEMORYSTATUSEX);
-    GlobalMemoryStatusEx(&memInfo);
-
-    printf(COLOR_YELLOW "System Information:\n" COLOR_RESET);
-    printf(COLOR_CYAN "Total RAM: %llu MB\n" COLOR_RESET, memInfo.ullTotalPhys / (1024 * 1024));
-    printf(COLOR_CYAN "Free RAM: %llu MB\n" COLOR_RESET, memInfo.ullAvailPhys / (1024 * 1024));
-    printf(COLOR_CYAN "Total Virtual Memory: %llu MB\n" COLOR_RESET, memInfo.ullTotalVirtual / (1024 * 1024));
-    printf(COLOR_CYAN "Free Virtual Memory: %llu MB\n" COLOR_RESET, memInfo.ullAvailVirtual / (1024 * 1024));
+void save_packages(int append) {
+	int i;
+    FILE *file = fopen(PACKAGE_FILE, append ? "a" : "w");
+    if (!file) {
+        printf(COLOR_RED "Error: Unable to open package file for writing.\n" COLOR_RESET);
+        return;
+    }
+    for (i = 0; i < package_count; i++) {
+        fprintf(file, "%s %s %d\n", packages[i].name, packages[i].version, packages[i].installed);
+    }
+    fclose(file);
+    printf(COLOR_GREEN "Packages %s to '%s'.\n" COLOR_RESET, append ? "appended" : "saved", PACKAGE_FILE);
 }
 
-void print_help() {
-    printf(COLOR_CYAN STYLE_BOLD STYLE_UNDERLINE "Available commands:\n" COLOR_RESET);
-    printf(COLOR_GREEN "  create" COLOR_RESET " <name> [priority]  - Create a new process\n");
-    printf(COLOR_GREEN "  list" COLOR_RESET "                     - List all processes\n");
-    printf(COLOR_GREEN "  start" COLOR_RESET " <id>               - Start a process\n");
-    printf(COLOR_GREEN "  stop" COLOR_RESET " <id>                - Stop a process\n");
-    printf(COLOR_GREEN "  terminate" COLOR_RESET " <id>           - Terminate a process\n");
-    printf(COLOR_GREEN "  update" COLOR_RESET " <id> <priority>   - Update process priority\n");
-    printf(COLOR_GREEN "  find" COLOR_RESET " <name>              - Find a process by name\n");
-    printf(COLOR_GREEN "  save" COLOR_RESET "                     - Save processes to file\n");
-    printf(COLOR_GREEN "  append" COLOR_RESET "                   - Append processes to file\n");
-    printf(COLOR_GREEN "  load" COLOR_RESET "                     - Load processes from file\n");
-    printf(COLOR_GREEN "  sysinfo" COLOR_RESET "                 - Display system information\n");
-    printf(COLOR_RED "  exit" COLOR_RESET "                     - Exit the program\n");
+void install_package(const char* name, const char* version) {
+    if (package_count < MAX_PROCESSES) {
+        strcpy(packages[package_count].name, name);
+        strcpy(packages[package_count].version, version);
+        packages[package_count].installed = 1; // Mark as installed
+        package_count++;
+        printf(COLOR_GREEN "Package '%s' version '%s' installed successfully.\n" COLOR_RESET, name, version);
+    } else {
+        printf(COLOR_RED "Error: Maximum number of packages reached.\n" COLOR_RESET);
+    }
+}
+
+void uninstall_package(const char* name) {
+	int i;
+    for (i = 0; i < package_count; i++) {
+        if (strcmp(packages[i].name, name) == 0) {
+            packages[i].installed = 0; // Mark as uninstalled
+            printf(COLOR_YELLOW "Package '%s' uninstalled successfully.\n" COLOR_RESET, name);
+            return;
+        }
+    }
+    printf(COLOR_RED "Error: Package '%s' not found.\n" COLOR_RESET, name);
+}
+
+void list_packages() {
+    printf(COLOR_YELLOW "Installed packages:\n" COLOR_RESET);
+    int i;
+    for (i = 0; i < package_count; i++) {
+        printf(COLOR_CYAN "%s (version: %s) - %s\n" COLOR_RESET, 
+               packages[i].name, 
+               packages[i].version, 
+               packages[i].installed ? "Installed" : "Not Installed");
+    }
 }
 
 void command_interpreter() {
@@ -236,51 +267,62 @@ void command_interpreter() {
 
         if (strcasecmp(token, "exit") == 0) {
             save_processes(0);
+            save_packages(0);
             printf(COLOR_YELLOW "Exiting...\n" COLOR_RESET);
             break;
         } else if (strcasecmp(token, "create") == 0) {
-            token = strtok(NULL, " ");
-            if (token) {
-                int priority = 1;
-                char *priority_str = strtok(NULL, " ");
-                if (priority_str) {
-                    priority = atoi(priority_str);
-                    if (priority < 1 || priority > 10) {
-                        printf(COLOR_RED "Error: Priority must be between 1 and 10. Using default priority 1.\n" COLOR_RESET);
-                        priority = 1;
-                    }
-                }
-                create_process(token, priority);
+            char *name = strtok(NULL, " ");
+            char *priority_str = strtok(NULL, " ");
+            int priority = priority_str ? atoi(priority_str) : 0;
+            if (name) {
+                create_process(name, priority);
+            } else {
+                printf(COLOR_RED "Usage: create <name> [priority]\n" COLOR_RESET);
             }
         } else if (strcasecmp(token, "list") == 0) {
             list_processes();
         } else if (strcasecmp(token, "start") == 0) {
-            token = strtok(NULL, " ");
-            if (token) start_process(atoi(token));
+            char *id_str = strtok(NULL, " ");
+            int id = id_str ? atoi(id_str) : -1;
+            start_process(id);
         } else if (strcasecmp(token, "stop") == 0) {
-            token = strtok(NULL, " ");
-            if (token) stop_process(atoi(token));
+            char *id_str = strtok(NULL, " ");
+            int id = id_str ? atoi(id_str) : -1;
+            stop_process(id);
         } else if (strcasecmp(token, "terminate") == 0) {
-            token = strtok(NULL, " ");
-            if (token) terminate_process(atoi(token));
-        } else if (strcasecmp(token, "update") == 0) {
-            int id, priority;
-            token = strtok(NULL, " ");
-            if (token) id = atoi(token);
-            token = strtok(NULL, " ");
-            if (token) priority = atoi(token);
-            update_process_priority(id, priority);
+            char *id_str = strtok(NULL, " ");
+            int id = id_str ? atoi(id_str) : -1;
+            terminate_process(id);
+        } else if (strcasecmp(token, "priority") == 0) {
+            char *id_str = strtok(NULL, " ");
+            int id = id_str ? atoi(id_str) : -1;
+            char *new_priority_str = strtok(NULL, " ");
+            int new_priority = new_priority_str ? atoi(new_priority_str) : 0;
+            update_process_priority(id, new_priority);
         } else if (strcasecmp(token, "find") == 0) {
-            token = strtok(NULL, " ");
-            if (token) find_process_by_name(token);
-        } else if (strcasecmp(token, "save") == 0) {
-            save_processes(0);
-        } else if (strcasecmp(token, "append") == 0) {
-            save_processes(1);
-        } else if (strcasecmp(token, "load") == 0) {
-            load_processes();
-        } else if (strcasecmp(token, "sysinfo") == 0) {
-            print_system_info();
+            char *name = strtok(NULL, " ");
+            if (name) {
+                find_process_by_name(name);
+            } else {
+                printf(COLOR_RED "Usage: find <process_name>\n" COLOR_RESET);
+            }
+        } else if (strcasecmp(token, "install") == 0) {
+            char *name = strtok(NULL, " ");
+            char *version = strtok(NULL, " ");
+            if (name && version) {
+                install_package(name, version);
+            } else {
+                printf(COLOR_RED "Usage: install <package_name> <version>\n" COLOR_RESET);
+            }
+        } else if (strcasecmp(token, "uninstall") == 0) {
+            char *name = strtok(NULL, " ");
+            if (name) {
+                uninstall_package(name);
+            } else {
+                printf(COLOR_RED "Usage: uninstall <package_name>\n" COLOR_RESET);
+            }
+        } else if (strcasecmp(token, "listpackages") == 0) {
+            list_packages();
         } else if (strcasecmp(token, "help") == 0) {
             print_help();
         } else {
@@ -289,9 +331,53 @@ void command_interpreter() {
     }
 }
 
+void load_processes() {
+    FILE *file = fopen(PROCESS_FILE, "r");
+    if (!file) {
+        printf(COLOR_YELLOW "No process file found. Starting with an empty process list.\n" COLOR_RESET);
+        return;
+    }
+    while (fscanf(file, "%d %49s %d %d", &processes[process_count].id, processes[process_count].name, &processes[process_count].status, &processes[process_count].priority) == 4) {
+        process_count++;
+        if (process_count >= MAX_PROCESSES) {
+            break;
+        }
+    }
+    fclose(file);
+    printf(COLOR_GREEN "Processes loaded from '%s'.\n" COLOR_RESET, PROCESS_FILE);
+}
+
+void save_processes(int append) {
+    FILE *file = fopen(PROCESS_FILE, append ? "a" : "w");
+    if (!file) {
+        printf(COLOR_RED "Error: Unable to open process file for writing.\n" COLOR_RESET);
+        return;
+    }
+    int i;
+    for (i = 0; i < process_count; i++) {
+        fprintf(file, "%d %s %d %d\n", processes[i].id, processes[i].name, processes[i].status, processes[i].priority);
+    }
+    fclose(file);
+    printf(COLOR_GREEN "Processes %s to '%s'.\n" COLOR_RESET, append ? "appended" : "saved", PROCESS_FILE);
+}
+
+void print_help() {
+    printf(COLOR_CYAN STYLE_BOLD STYLE_UNDERLINE "Available commands:\n" COLOR_RESET);
+    printf(COLOR_GREEN "  create" COLOR_RESET " <name> [priority]  - Create a new process\n");
+    printf(COLOR_GREEN "  list" COLOR_RESET "                     - List all processes\n");
+    printf(COLOR_GREEN "  start" COLOR_RESET " <id>            - Start a process\n");
+    printf(COLOR_GREEN "  stop" COLOR_RESET " <id>             - Stop a process\n");
+    printf(COLOR_GREEN "  terminate" COLOR_RESET " <id>         - Terminate a process\n");
+    printf(COLOR_GREEN "  priority" COLOR_RESET " <id> <value>  - Update process priority\n");
+    printf(COLOR_GREEN "  find" COLOR_RESET " <process_name>   - Find a process by name\n");
+    printf(COLOR_GREEN "  install" COLOR_RESET " <package_name> <version> - Install a package\n");
+    printf(COLOR_GREEN "  uninstall" COLOR_RESET " <package_name>    - Uninstall a package\n");
+    printf(COLOR_GREEN "  listpackages" COLOR_RESET "          - List all installed packages\n");
+    printf(COLOR_RED "  exit" COLOR_RESET "                   - Exit the program\n");
+}
+
 int main() {
     init_os();
     command_interpreter();
-    printf(COLOR_YELLOW STYLE_BOLD "\nMogger shutting down. Goodbye!\n" COLOR_RESET);
     return 0;
 }
