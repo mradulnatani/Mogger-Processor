@@ -1,0 +1,32 @@
+name: Windows CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Setup MSBuild
+      uses: microsoft/setup-msbuild@v1.0.2
+
+    - name: Compile
+      run: cl.exe /EHsc mogger_windows.c
+
+    - name: Run tests
+      run: |
+        Start-Process .\mogger_windows.exe
+        Start-Sleep -s 5
+        Stop-Process -Name "mogger_windows"
+
+    - name: Upload artifact
+      uses: actions/upload-artifact@v2
+      with:
+        name: mogger-windows
+        path: mogger_windows.exe
