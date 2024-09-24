@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
-#include <windows.h>
+#include <sys/sysinfo.h>
 
 #define MAX_PROCESSES 10
 #define MAX_COMMAND_LENGTH 100
@@ -195,103 +195,102 @@ void load_processes() {
 }
 
 void print_system_info() {
-    MEMORYSTATUSEX memInfo;
-    memInfo.dwLength = sizeof(MEMORYSTATUSEX);
-    GlobalMemoryStatusEx(&memInfo);
+    struct sysinfo memInfo;
+    sysinfo(&memInfo);
 
     printf(COLOR_YELLOW "System Information:\n" COLOR_RESET);
-    printf(COLOR_CYAN "Total RAM: %llu MB\n" COLOR_RESET, memInfo.ullTotalPhys / (1024 * 1024));
-    printf(COLOR_CYAN "Free RAM: %llu MB\n" COLOR_RESET, memInfo.ullAvailPhys / (1024 * 1024));
-    printf(COLOR_CYAN "Total Virtual Memory: %llu MB\n" COLOR_RESET, memInfo.ullTotalVirtual / (1024 * 1024));
-    printf(COLOR_CYAN "Free Virtual Memory: %llu MB\n" COLOR_RESET, memInfo.ullAvailVirtual / (1024 * 1024));
+    printf(COLOR_CYAN "Total RAM: %lu MB\n" COLOR_RESET, memInfo.totalram / (1024 * 1024));
+    printf(COLOR_CYAN "Free RAM: %lu MB\n" COLOR_RESET, memInfo.freeram / (1024 * 1024));
+    printf(COLOR_CYAN "Total Virtual Memory: %lu MB\n" COLOR_RESET, memInfo.totalswap / (1024 * 1024));
+    printf(COLOR_CYAN "Free Virtual Memory: %lu MB\n" COLOR_RESET, memInfo.freeswap / (1024 * 1024));
 }
 
 void print_help() {
-    printf(COLOR_CYAN STYLE_BOLD STYLE_UNDERLINE "Available commands:\n" COLOR_RESET);
-    printf(COLOR_GREEN "  create" COLOR_RESET " <name> [priority]  - Create a new process\n");
-    printf(COLOR_GREEN "  list" COLOR_RESET "                     - List all processes\n");
-    printf(COLOR_GREEN "  start" COLOR_RESET " <id>               - Start a process\n");
-    printf(COLOR_GREEN "  stop" COLOR_RESET " <id>                - Stop a process\n");
-    printf(COLOR_GREEN "  terminate" COLOR_RESET " <id>           - Terminate a process\n");
-    printf(COLOR_GREEN "  update" COLOR_RESET " <id> <priority>   - Update process priority\n");
-    printf(COLOR_GREEN "  find" COLOR_RESET " <name>              - Find a process by name\n");
-    printf(COLOR_GREEN "  save" COLOR_RESET "                     - Save processes to file\n");
-    printf(COLOR_GREEN "  append" COLOR_RESET "                   - Append processes to file\n");
-    printf(COLOR_GREEN "  load" COLOR_RESET "                     - Load processes from file\n");
-    printf(COLOR_GREEN "  sysinfo" COLOR_RESET "                 - Display system information\n");
-    printf(COLOR_RED "  exit" COLOR_RESET "                     - Exit the program\n");
-}
-
-void command_interpreter() {
-    char command[MAX_COMMAND_LENGTH];
-
-    while (1) {
-        printf(COLOR_CYAN STYLE_BOLD "SimpleOS> " COLOR_RESET);
-        fgets(command, MAX_COMMAND_LENGTH, stdin);
-        command[strcspn(command, "\n")] = 0;
-
-        char *token = strtok(command, " ");
-
-        if (token == NULL) continue;
-
-        if (strcasecmp(token, "exit") == 0) {
-            save_processes(0);
-            printf(COLOR_YELLOW "Exiting...\n" COLOR_RESET);
-            break;
-        } else if (strcasecmp(token, "create") == 0) {
-            token = strtok(NULL, " ");
-            if (token) {
-                int priority = 1;
-                char *priority_str = strtok(NULL, " ");
-                if (priority_str) {
-                    priority = atoi(priority_str);
-                    if (priority < 1 || priority > 10) {
-                        printf(COLOR_RED "Error: Priority must be between 1 and 10. Using default priority 1.\n" COLOR_RESET);
-                        priority = 1;
-                    }
-                }
-                create_process(token, priority);
-            }
-        } else if (strcasecmp(token, "list") == 0) {
-            list_processes();
-        } else if (strcasecmp(token, "start") == 0) {
-            token = strtok(NULL, " ");
-            if (token) start_process(atoi(token));
-        } else if (strcasecmp(token, "stop") == 0) {
-            token = strtok(NULL, " ");
-            if (token) stop_process(atoi(token));
-        } else if (strcasecmp(token, "terminate") == 0) {
-            token = strtok(NULL, " ");
-            if (token) terminate_process(atoi(token));
-        } else if (strcasecmp(token, "update") == 0) {
-            int id, priority;
-            token = strtok(NULL, " ");
-            if (token) id = atoi(token);
-            token = strtok(NULL, " ");
-            if (token) priority = atoi(token);
-            update_process_priority(id, priority);
-        } else if (strcasecmp(token, "find") == 0) {
-            token = strtok(NULL, " ");
-            if (token) find_process_by_name(token);
-        } else if (strcasecmp(token, "save") == 0) {
-            save_processes(0);
-        } else if (strcasecmp(token, "append") == 0) {
-            save_processes(1);
-        } else if (strcasecmp(token, "load") == 0) {
-            load_processes();
-        } else if (strcasecmp(token, "sysinfo") == 0) {
-            print_system_info();
-        } else if (strcasecmp(token, "help") == 0) {
-            print_help();
-        } else {
-            printf(COLOR_RED "Unknown command. Type 'help' for a list of commands.\n" COLOR_RESET);
-        }
-    }
+    printf(COLOR_BLUE "Available commands:\n" COLOR_RESET);
+    printf(COLOR_CYAN "  create <name> <priority>   : Create a new process\n" COLOR_RESET);
+    printf(COLOR_CYAN "  start <id>                 : Start a process\n" COLOR_RESET);
+    printf(COLOR_CYAN "  stop <id>                  : Stop a process\n" COLOR_RESET);
+    printf(COLOR_CYAN "  terminate <id>             : Terminate a process\n" COLOR_RESET);
+    printf(COLOR_CYAN "  list                       : List all processes\n" COLOR_RESET);
+    printf(COLOR_CYAN "  update <id> <priority>     : Update process priority\n" COLOR_RESET);
+    printf(COLOR_CYAN "  find <name>                : Find a process by name\n" COLOR_RESET);
+    printf(COLOR_CYAN "  save                       : Save processes to file\n" COLOR_RESET);
+    printf(COLOR_CYAN "  load                       : Load processes from file\n" COLOR_RESET);
+    printf(COLOR_CYAN "  sysinfo                    : Print system information\n" COLOR_RESET);
+    printf(COLOR_CYAN "  help                       : Print this help message\n" COLOR_RESET);
+    printf(COLOR_CYAN "  quit                       : Exit the OS\n" COLOR_RESET);
 }
 
 int main() {
     init_os();
-    command_interpreter();
-    printf(COLOR_YELLOW STYLE_BOLD "\nMogger shutting down. Goodbye!\n" COLOR_RESET);
+
+    char command[MAX_COMMAND_LENGTH];
+    while (1) {
+        printf(COLOR_BLUE "\n$ " COLOR_RESET);
+        fgets(command, MAX_COMMAND_LENGTH, stdin);
+
+        // Remove newline character from command
+        command[strcspn(command, "\n")] = 0;
+
+        if (strncmp(command, "create", 6) == 0) {
+            char name[50];
+            int priority;
+            if (sscanf(command + 7, "%49s %d", name, &priority) == 2) {
+                create_process(name, priority);
+            } else {
+                printf(COLOR_RED "Error: Invalid arguments for create.\n" COLOR_RESET);
+            }
+        } else if (strncmp(command, "start", 5) == 0) {
+            int id;
+            if (sscanf(command + 6, "%d", &id) == 1) {
+                start_process(id);
+            } else {
+                printf(COLOR_RED "Error: Invalid arguments for start.\n" COLOR_RESET);
+            }
+        } else if (strncmp(command, "stop", 4) == 0) {
+            int id;
+            if (sscanf(command + 5, "%d", &id) == 1) {
+                stop_process(id);
+            } else {
+                printf(COLOR_RED "Error: Invalid arguments for stop.\n" COLOR_RESET);
+            }
+        } else if (strncmp(command, "terminate", 9) == 0) {
+            int id;
+            if (sscanf(command + 10, "%d", &id) == 1) {
+                terminate_process(id);
+            } else {
+                printf(COLOR_RED "Error: Invalid arguments for terminate.\n" COLOR_RESET);
+            }
+        } else if (strncmp(command, "list", 4) == 0) {
+            list_processes();
+        } else if (strncmp(command, "update", 6) == 0) {
+            int id, priority;
+            if (sscanf(command + 7, "%d %d", &id, &priority) == 2) {
+                update_process_priority(id, priority);
+            } else {
+                printf(COLOR_RED "Error: Invalid arguments for update.\n" COLOR_RESET);
+            }
+        } else if (strncmp(command, "find", 4) == 0) {
+            char name[50];
+            if (sscanf(command + 5, "%49s", name) == 1) {
+                find_process_by_name(name);
+            } else {
+                printf(COLOR_RED "Error: Invalid arguments for find.\n" COLOR_RESET);
+            }
+        } else if (strncmp(command, "save", 4) == 0) {
+            save_processes(0);
+        } else if (strncmp(command, "load", 4) == 0) {
+            load_processes();
+        } else if (strncmp(command, "sysinfo", 7) == 0) {
+            print_system_info();
+        } else if (strncmp(command, "help", 4) == 0) {
+            print_help();
+        } else if (strncmp(command, "quit", 4) == 0) {
+            break;
+        } else {
+            printf(COLOR_RED "Error: Unknown command '%s'. Type 'help' for a list of commands.\n" COLOR_RESET, command);
+        }
+    }
+
     return 0;
 }
