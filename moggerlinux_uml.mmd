@@ -1,0 +1,49 @@
+classDiagram
+    class Process {
+        +int id
+        +char name[50]
+        +int status
+        +int priority
+    }
+    
+    class OSManager {
+        -Process processes[MAX_PROCESSES]
+        -int process_count
+        
+        +void init_os()
+        +void create_process(name: string, priority: int)
+        +void list_processes()
+        +void start_process(id: int)
+        +void stop_process(id: int)
+        +void terminate_process(id: int)
+        +void update_process_priority(id: int, new_priority: int)
+        +void find_process_by_name(name: string)
+        
+        +void save_processes(append: bool)
+        +void load_processes()
+        
+        +void print_welcome_message()
+        +void print_system_info()
+        +void print_help()
+    }
+    
+    class FileManager {
+        +void save_to_file(filename: string, data: Process[], count: int)
+        +void load_from_file(filename: string, data: Process[], max_count: int)
+    }
+    
+    class CommandInterpreter {
+        +void parse_command(command: string)
+        +void execute_command()
+        +bool validate_command()
+    }
+    
+    class SystemInfo {
+        +void get_memory_details()
+        +void display_system_stats()
+    }
+    
+    OSManager "1" *-- "*" Process : manages
+    OSManager ..> FileManager : uses
+    OSManager ..> CommandInterpreter : uses
+    OSManager ..> SystemInfo : uses
