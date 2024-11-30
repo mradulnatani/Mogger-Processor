@@ -1,0 +1,61 @@
+classDiagram
+    class Process {
+        +int id
+        +string name
+        +int status
+        +int priority
+    }
+    
+    class Package {
+        +string name
+        +string version
+        +int installed
+    }
+    
+    class SimpleOS {
+        +Process[] processes
+        +Package[] packages
+        +int process_count
+        +int package_count
+        
+        +void create_process(name: string, priority: int)
+        +void list_processes()
+        +void start_process(id: int)
+        +void stop_process(id: int)
+        +void terminate_process(id: int)
+        +void update_process_priority(id: int, new_priority: int)
+        +void find_process_by_name(name: string)
+        
+        +void install_package(name: string, version: string)
+        +void uninstall_package(name: string)
+        +void list_packages()
+        
+        +void load_processes()
+        +void save_processes(append: bool)
+        +void load_packages()
+        +void save_packages(append: bool)
+        
+        +void init_os()
+        +void command_interpreter()
+    }
+    
+    class ProcessManager {
+        +void manage_process_lifecycle()
+        +void handle_process_priority()
+    }
+    
+    class PackageManager {
+        +void manage_package_installation()
+        +void handle_package_versions()
+    }
+    
+    class CommandInterpreter {
+        +void parse_commands()
+        +void execute_command()
+    }
+    
+    SimpleOS "1" *-- "*" Process : contains
+    SimpleOS "1" *-- "*" Package : contains
+    SimpleOS ..> ProcessManager : uses
+    SimpleOS ..> PackageManager : uses
+    SimpleOS ..> CommandInterpreter : uses
